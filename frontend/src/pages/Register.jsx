@@ -18,7 +18,6 @@ const Register = () => {
         setError('');
         setSuccess('');
 
-        // Şifre eşleşme kontrolü
         if (formData.password !== formData.confirm_password) {
             return setError('Şifreler eşleşmiyor, lütfen kontrol ediniz.');
         }
@@ -26,16 +25,14 @@ const Register = () => {
         setIsLoading(true);
 
         try {
-            // Backend api endpoitine istek at
             const response = await axios.post('http://localhost:5050/api/auth/register', {
                 full_name: formData.full_name,
                 email: formData.email,
                 password: formData.password
             });
 
-            setSuccess('Hesabınız başarıyla oluşturuldu! Giriş yapabilirsiniz.');
+            setSuccess('Account created successfully! You can sign in now.');
 
-            // 2 saniye sonra login sayfasına yönlendir
             setTimeout(() => {
                 navigate('/login');
             }, 2000);
@@ -52,79 +49,92 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container">
-            <div className="auth-card">
-                <h1 className="auth-title">FinansTakip</h1>
-                <p className="auth-subtitle">Yeni bir hesap oluşturarak harcamalarınızı yönetmeye başlayın.</p>
+        <div className="auth-split-bg">
+            <div className="auth-overlay"></div>
 
-                {error && <div className="error-msg">{error}</div>}
-                {success && <div className="success-msg">{success}</div>}
+            <div className="auth-content-wrapper">
+                <div className="auth-left-pane">
+                    <h1 className="auth-left-text">Start your<br />financial<br />journey!</h1>
+                </div>
 
-                <form onSubmit={handleSubmit} style={{ marginTop: '1.5rem' }}>
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="full_name">Ad Soyad</label>
-                        <input
-                            type="text"
-                            id="full_name"
-                            name="full_name"
-                            className="form-input"
-                            placeholder="Örn: Ahmet Yılmaz"
-                            value={formData.full_name}
-                            onChange={handleChange}
-                            required
-                        />
+                <div className="auth-right-pane">
+                    <div className="auth-white-card" style={{ padding: '2rem 3.5rem' }}>
+                        <h2 className="auth-title">Create an account</h2>
+
+                        {error && <div className="error-msg">{error}</div>}
+                        {success && <div className="success-msg">{success}</div>}
+
+                        <form onSubmit={handleSubmit}>
+                            <div className="auth-label">
+                                <label htmlFor="full_name">Full Name</label>
+                            </div>
+                            <input
+                                type="text"
+                                id="full_name"
+                                name="full_name"
+                                className="auth-input"
+                                style={{ marginBottom: '1rem' }}
+                                value={formData.full_name}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <div className="auth-label">
+                                <label htmlFor="email">Email Address</label>
+                            </div>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                className="auth-input"
+                                style={{ marginBottom: '1rem' }}
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <div className="auth-label">
+                                <label htmlFor="password">Password</label>
+                            </div>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                className="auth-input"
+                                style={{ marginBottom: '1rem' }}
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                                minLength={6}
+                            />
+
+                            <div className="auth-label">
+                                <label htmlFor="confirm_password">Confirm Password</label>
+                            </div>
+                            <input
+                                type="password"
+                                id="confirm_password"
+                                name="confirm_password"
+                                className="auth-input"
+                                style={{ marginBottom: '1rem' }}
+                                value={formData.confirm_password}
+                                onChange={handleChange}
+                                required
+                            />
+
+                            <button type="submit" className="btn-green" disabled={isLoading}>
+                                {isLoading ? 'Creating Account...' : 'Sign up'}
+                            </button>
+                        </form>
+
+                        <div className="auth-footer">
+                            Already have an account? <Link to="/login">Sign in</Link>
+                        </div>
+
+                        <div className="auth-terms-text">
+                            Application collects and uses personal data in accordance with our <a href="#">Privacy Policy</a>. By creating an account, you agree to our <a href="#">User Terms</a>, including our <a href="#">Fair Use Policy</a>.
+                        </div>
                     </div>
-
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="email">E-posta Adresi</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className="form-input"
-                            placeholder="ornek@posta.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="password">Şifre</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            className="form-input"
-                            placeholder="••••••••"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                            minLength={6}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label className="form-label" htmlFor="confirm_password">Şifre Tekrar</label>
-                        <input
-                            type="password"
-                            id="confirm_password"
-                            name="confirm_password"
-                            className="form-input"
-                            placeholder="••••••••"
-                            value={formData.confirm_password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <button type="submit" className="btn btn-primary" disabled={isLoading} style={{ marginTop: '1rem' }}>
-                        {isLoading ? 'Hesap Oluşturuluyor...' : 'Kayıt Ol'}
-                    </button>
-                </form>
-
-                <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                    Zaten bir hesabınız var mı? <Link to="/login" style={{ fontWeight: '500' }}>Giriş Yapın</Link>
                 </div>
             </div>
         </div>
