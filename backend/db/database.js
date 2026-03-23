@@ -30,7 +30,25 @@ db.serialize(() => {
         }
     });
 
-    // İleriki haftalar için Gelir/Gider (Transactions) tablosu eklenebilir. 
+    // İleriki haftalar için Gelir/Gider (Transactions) tablosu eklenebilir.
+    db.run(`CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        type TEXT NOT NULL, -- 'income' veya 'expense'
+        category TEXT NOT NULL,
+        description TEXT,
+        date DATE NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )`, (err) => {
+        if (err) {
+            console.error("Transactions tablosu oluşturulurken hata:", err.message);
+        } else {
+            console.log("Transactions tablosu hazır.");
+        }
+    });
+
 });
 
 module.exports = db;

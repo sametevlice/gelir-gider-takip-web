@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
+import TransactionsPage from './pages/TransactionsPage';
 
 function App() {
   // Basit bir auth kontrolü (localStorage'da token varsa giriş yapmış sayılır)
@@ -34,6 +35,7 @@ function App() {
         }
       >
         <Route index element={<Dashboard />} />
+        <Route path="transactions" element={<TransactionsPage />} />
       </Route>
 
       {/* 404 vs için */}

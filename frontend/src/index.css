@@ -1,24 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Dashboard Colors - Dark Theme (Dashboard için saklanıyor) */
-  --bg-primary: #0F172A;
-  --bg-secondary: #1E293B;
-  --bg-card: #1E293B;
+  /* Dashboard Colors - Light Theme (PayPal Referans) */
+  --bg-primary: #EAECF0;
+  /* Referans fotoğraftaki soğuk gri-mavi arka plan */
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
 
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
 
-  --accent-color: #06B6D4;
-  --accent-hover: #0891B2;
+  --accent-color: #0E44CE;
+  --accent-hover: #0B36A4;
 
   --success: #10B981;
+  --success-bg: #D1FAE5;
   --danger: #EF4444;
+  --danger-bg: #FEE2E2;
 
-  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color: #E5E7EB;
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
-  --border-radius-lg: 20px;
+  --border-radius-lg: 16px;
 }
 
 * {
@@ -308,15 +311,16 @@ a {
   }
 }
 
-/* --- DASHBOARD STYLES (Korundu) --- */
+/* --- DASHBOARD STYLES (Light Theme) --- */
 .app-layout {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
 .sidebar {
-  width: 260px;
+  width: 250px;
   background-color: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   display: flex;
@@ -326,32 +330,39 @@ a {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  padding: 1.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem 1.75rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
 }
 
 .sidebar-nav {
-  padding: 1rem 0;
+  padding: 1.5rem 0;
   flex: 1;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 0.8rem 1.75rem;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.95rem;
   margin: 0.2rem 1rem;
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.nav-item:hover,
+.nav-item:hover {
+  color: var(--text-primary);
+}
+
 .nav-item.active {
-  background-color: rgba(6, 182, 212, 0.1);
+  background-color: #F3F4F6;
+  /* Çok açık mavi/gri */
   color: var(--accent-color);
+  font-weight: 700;
 }
 
 .main-content {
@@ -363,10 +374,8 @@ a {
 }
 
 .navbar {
-  height: 70px;
-  background-color: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
+  height: 80px;
+  background-color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -376,10 +385,125 @@ a {
   z-index: 10;
 }
 
+/* Yukarıdaki Stat Bar (Mini header) */
+.top-stats-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius-lg);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stat-highlight {
+  color: var(--accent-color);
+  margin-left: 4px;
+}
+
+.stat-badge-green {
+  background: var(--success-bg);
+  color: #047857;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  margin-left: 6px;
+}
+
+/* Dashboard Beyaz Kartlar */
+.dash-card {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.dash-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .btn-primary {
-  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+  background: var(--accent-color);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
   cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: #F9FAFB;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(14, 68, 206, 0.1);
+  background: #FFFFFF;
+}
+
+.radio-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.radio-label {
+  flex: 1;
+  text-align: center;
+  padding: 0.6rem 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: #F9FAFB;
+  transition: all 0.2s;
+}
+
+.radio-label.expense.active {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.radio-label.income.active {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.radio-input {
+  display: none;
 }
