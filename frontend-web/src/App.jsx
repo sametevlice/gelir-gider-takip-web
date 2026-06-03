@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useStore } from './store/useStore';
+import { AnimatePresence, motion } from 'framer-motion';
 import Auth from './pages/Auth';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Analytics from './pages/Analytics';
 import Account from './pages/Account';
 import BudgetManagement from './pages/BudgetManagement';
-import InvestmentsPage from './pages/InvestmentsPage';
+
+import PaymentsPage from './pages/PaymentsPage';
 
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -19,52 +22,61 @@ function App() {
   const [activePage, setActivePage] = useState('dashboard');
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('fintech_dark_mode') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  // Apply dark mode class to html element
-  useEffect(() => {
-    const root = document.documentElement;
-    if (darkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    try {
-      localStorage.setItem('fintech_dark_mode', darkMode.toString());
-    } catch {
-      // ignore
-    }
-  }, [darkMode]);
+  const [view, setView] = useState('landing'); // 'landing', 'login', 'register'
 
   if (!user) {
     return (
-      <>
-        <Auth />
+      <AnimatePresence mode="wait">
+        {view === 'landing' ? (
+          <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <LandingPage 
+              onLogin={() => setView('login')} 
+              onRegister={() => setView('register')} 
+            />
+          </motion.div>
+        ) : (
+          <motion.div key="auth" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <Auth 
+              initialIsLogin={view === 'login'} 
+              onBack={() => setView('landing')} 
+            />
+          </motion.div>
+        )}
         <Toast />
-      </>
+      </AnimatePresence>
     );
   }
 
   return (
-    <div id="app" style={{ display: 'block' }}>
-      <div className="app-grid">
-        <Header setActivePage={setActivePage} setModalOpen={setModalOpen} darkMode={darkMode} setDarkMode={setDarkMode} />
-        <Sidebar activePage={activePage} setActivePage={setActivePage} />
-        <main className="main">
-          {activePage === 'dashboard' && <Dashboard setModalOpen={setModalOpen} setEditId={setEditId} setActivePage={setActivePage} />}
-          {activePage === 'transactions' && <Transactions setModalOpen={setModalOpen} setEditId={setEditId} />}
-          {activePage === 'analytics' && <Analytics />}
-          {activePage === 'budget' && <BudgetManagement />}
-          {activePage === 'investments' && <InvestmentsPage />}
-          {activePage === 'account' && <Account />}
+    <div className="flex min-h-screen bg-[#FAFBFC] font-sans text-[#11142D] overflow-hidden">
+      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      
+      <div className="flex-1 flex flex-col ml-[80px] h-screen overflow-hidden relative">
+        <Header setActivePage={setActivePage} setModalOpen={setModalOpen} />
+        
+        <main className="flex-1 overflow-y-auto px-8 pb-8 pt-4">
+          <div className="max-w-[1400px] mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activePage}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                {activePage === 'dashboard' && <Dashboard setModalOpen={setModalOpen} setEditId={setEditId} setActivePage={setActivePage} />}
+                {activePage === 'transactions' && <Transactions setModalOpen={setModalOpen} setEditId={setEditId} />}
+                {activePage === 'analytics' && <Analytics />}
+                {activePage === 'budget' && <BudgetManagement />}
+
+                {activePage === 'payments' && <PaymentsPage />}
+                {activePage === 'account' && <Account />}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </main>
       </div>
+
       <TransactionModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setEditId(null); }} editId={editId} />
       <Toast />
     </div>

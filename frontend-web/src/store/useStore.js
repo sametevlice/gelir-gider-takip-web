@@ -3,57 +3,59 @@ import { create } from 'zustand';
 const STORAGE_KEY = 'cashio_data';
 
 export const CATEGORIES = [
-  {id:'cat1', name:'Yiyecek',   icon:'🍽️', color:'#FF5722'},
-  {id:'cat2', name:'Market',    icon:'🛒', color:'#4CAF50'},
-  {id:'cat3', name:'Seyahat',   icon:'✈️', color:'#2196F3'},
-  {id:'cat4', name:'Araç',      icon:'🚗', color:'#FF9800'},
-  {id:'cat5', name:'Eğitim',    icon:'📚', color:'#9C27B0'},
-  {id:'cat6', name:'Sigorta',   icon:'🛡️', color:'#00BCD4'},
-  {id:'cat7', name:'Pazarlama', icon:'📢', color:'#E91E63'},
-  {id:'cat8', name:'Ev',        icon:'🏠', color:'#795548'},
-  {id:'cat9', name:'Sağlık',    icon:'💊', color:'#F44336'},
-  {id:'cat10',name:'Eğlence',   icon:'🎮', color:'#673AB7'},
-  {id:'cat11',name:'Faturalar', icon:'💡', color:'#FFC107'},
-  {id:'cat12',name:'Maaş',      icon:'💼', color:'#ABE39E'},
-  {id:'cat13',name:'Yatırım',   icon:'📈', color:'#8552FF'},
-  {id:'cat14',name:'Freelance', icon:'💻', color:'#00BCD4'},
-  {id:'cat15',name:'Diğer',     icon:'📦', color:'#9E9E9E'},
+  { id: 'cat1',  name: 'Yemek & Kafe',     icon: '☕', color: '#FF6B6B' },
+  { id: 'cat2',  name: 'Market',            icon: '🛒', color: '#4ECDC4' },
+  { id: 'cat3',  name: 'Eğlence',           icon: '🎬', color: '#FFE66D' },
+  { id: 'cat4',  name: 'Ulaşım',            icon: '🚗', color: '#1A535C' },
+  { id: 'cat5',  name: 'Sağlık',            icon: '💊', color: '#FF9F1C' },
+  { id: 'cat6',  name: 'Giyim',             icon: '👕', color: '#845EC2' },
+  { id: 'cat7',  name: 'Kişisel Bakım',     icon: '🧴', color: '#D65DB1' },
+  { id: 'cat8',  name: 'Ev & Yaşam',        icon: '🏠', color: '#FFC75F' },
+  { id: 'cat9',  name: 'Eğitim',            icon: '📚', color: '#F9F871' },
+  { id: 'cat10', name: 'Abonelikler',       icon: '📺', color: '#2C3E50' },
+  { id: 'cat11', name: 'Faturalar',         icon: '🧾', color: '#95A5A6' },
+  { id: 'cat12', name: 'Maaş',               icon: '💰', color: '#27AE60' },
+  { id: 'cat13', name: 'Borçlar',           icon: '💳', color: '#E74C3C' },
+  { id: 'cat14', name: 'Ek Gelir',          icon: '📈', color: '#F39C12' },
+  { id: 'cat15', name: 'Diğer',             icon: '✨', color: '#BDC3C7' },
 ];
 
-const DEMO_TRANSACTIONS = [
-  {id:'t1', type:'INCOME',  amount:15000,  description:'Ocak Maaşı',          categoryId:'cat12', date:'2025-01-01'},
-  {id:'t2', type:'EXPENSE', amount:2500,   description:'Kira',                 categoryId:'cat8',  date:'2025-01-03'},
-  {id:'t3', type:'EXPENSE', amount:450,    description:'Market Alışverişi',    categoryId:'cat2',  date:'2025-01-05'},
-  {id:'t4', type:'EXPENSE', amount:189,    description:'Netflix & Spotify',    categoryId:'cat10', date:'2025-01-08'},
-  {id:'t5', type:'EXPENSE', amount:320,    description:'Akaryakıt',            categoryId:'cat4',  date:'2025-01-10'},
-  {id:'t6', type:'INCOME',  amount:3200,   description:'Freelance Proje',      categoryId:'cat14', date:'2025-01-15'},
-  {id:'t7', type:'EXPENSE', amount:85,     description:'Restoran',             categoryId:'cat1',  date:'2025-01-17'},
-  {id:'t8', type:'EXPENSE', amount:250,    description:'Elektrik & Su',        categoryId:'cat11', date:'2025-01-20'},
-  {id:'t9', type:'EXPENSE', amount:120,    description:'Sağlık Sigortası',     categoryId:'cat5',  date:'2025-01-22'},
-  {id:'t10',type:'INCOME',  amount:15000,  description:'Şubat Maaşı',         categoryId:'cat12', date:'2025-02-01'},
-  {id:'t11',type:'EXPENSE', amount:2500,   description:'Kira',                 categoryId:'cat8',  date:'2025-02-03'},
-  {id:'t12',type:'EXPENSE', amount:380,    description:'Market',               categoryId:'cat2',  date:'2025-02-07'},
-  {id:'t13',type:'EXPENSE', amount:215,    description:'Ulaşım',               categoryId:'cat4',  date:'2025-02-09'},
-  {id:'t14',type:'EXPENSE', amount:680,    description:'Yeni Ayakkabı',        categoryId:'cat15', date:'2025-02-12'},
-  {id:'t15',type:'INCOME',  amount:1800,   description:'Satış Komisyonu',      categoryId:'cat14', date:'2025-02-16'},
-  {id:'t16',type:'EXPENSE', amount:95,     description:'Kafe',                 categoryId:'cat1',  date:'2025-02-19'},
-  {id:'t17',type:'EXPENSE', amount:250,    description:'Faturalar',            categoryId:'cat11', date:'2025-02-22'},
-  {id:'t18',type:'INCOME',  amount:15000,  description:'Mart Maaşı',          categoryId:'cat12', date:'2025-03-01'},
-  {id:'t19',type:'EXPENSE', amount:2500,   description:'Kira',                 categoryId:'cat8',  date:'2025-03-03'},
-  {id:'t20',type:'EXPENSE', amount:490,    description:'Market & İhtiyaçlar',  categoryId:'cat2',  date:'2025-03-06'},
-  {id:'t21',type:'EXPENSE', amount:340,    description:'Akaryakıt',            categoryId:'cat4',  date:'2025-03-10'},
-  {id:'t22',type:'INCOME',  amount:5000,   description:'Yatırım Getirisi',     categoryId:'cat13', date:'2025-03-14'},
-  {id:'t23',type:'EXPENSE', amount:1200,   description:'Tatil Uçak Bileti',    categoryId:'cat3',  date:'2025-03-18'},
-  {id:'t24',type:'EXPENSE', amount:270,    description:'Faturalar',            categoryId:'cat11', date:'2025-03-22'},
-  {id:'t25',type:'INCOME',  amount:15000,  description:'Nisan Maaşı',         categoryId:'cat12', date:'2025-04-01'},
-  {id:'t26',type:'EXPENSE', amount:2500,   description:'Kira',                 categoryId:'cat8',  date:'2025-04-03'},
-  {id:'t27',type:'EXPENSE', amount:420,    description:'Market',               categoryId:'cat2',  date:'2025-04-05'},
-  {id:'t28',type:'EXPENSE', amount:189,    description:'Abonelikler',          categoryId:'cat10', date:'2025-04-07'},
-  {id:'t29',type:'EXPENSE', amount:850,    description:'Dişçi',                categoryId:'cat9',  date:'2025-04-11'},
-  {id:'t30',type:'INCOME',  amount:2500,   description:'Danışmanlık',          categoryId:'cat14', date:'2025-04-15'},
-  {id:'t31',type:'EXPENSE', amount:310,    description:'Akaryakıt',            categoryId:'cat4',  date:'2025-04-17'},
-  {id:'t32',type:'EXPENSE', amount:260,    description:'Faturalar',            categoryId:'cat11', date:'2025-04-21'},
+export const BRAND_LOGOS = [
+  { keywords: ['netflix'], brand: 'Netflix', domain: 'netflix.com', color: 'bg-zinc-900 border-zinc-800 text-white', categoryId: 'cat10' },
+  { keywords: ['spotify'], brand: 'Spotify', domain: 'spotify.com', color: 'bg-emerald-50 border-emerald-100', categoryId: 'cat10' },
+  { keywords: ['adobe', 'photoshop', 'illustrator'], brand: 'Adobe', domain: 'adobe.com', color: 'bg-red-50 border-red-100', categoryId: 'cat5' },
+  { keywords: ['figma'], brand: 'Figma', domain: 'figma.com', color: 'bg-purple-50 border-purple-100', categoryId: 'cat15' },
+  { keywords: ['linkedin'], brand: 'LinkedIn', domain: 'linkedin.com', color: 'bg-blue-50 border-blue-100', categoryId: 'cat14' },
+  { keywords: ['canva'], brand: 'Canva', domain: 'canva.com', color: 'bg-blue-50 border-blue-100', categoryId: 'cat15' },
+  { keywords: ['google', 'drive', 'cloud'], brand: 'Google', domain: 'google.com', color: 'bg-gray-50 border-gray-100', categoryId: 'cat11' },
+  { keywords: ['apple', 'icloud', 'music'], brand: 'Apple', domain: 'apple.com', color: 'bg-zinc-50 border-zinc-100', categoryId: 'cat10' },
+  { keywords: ['amazon', 'prime', 'aws'], brand: 'Amazon', domain: 'amazon.com', color: 'bg-orange-50 border-orange-100', categoryId: 'cat2' },
+  { keywords: ['microsoft', 'office', '365', 'azure'], brand: 'Microsoft', domain: 'microsoft.com', color: 'bg-blue-50 border-blue-100', categoryId: 'cat11' },
+  { keywords: ['disney'], brand: 'Disney+', domain: 'disneyplus.com', color: 'bg-blue-900 border-blue-800 text-white', categoryId: 'cat10' },
+  { keywords: ['youtube', 'premium'], brand: 'YouTube', domain: 'youtube.com', color: 'bg-red-50 border-red-100', categoryId: 'cat10' },
+  { keywords: ['dropbox'], brand: 'Dropbox', domain: 'dropbox.com', color: 'bg-blue-50 border-blue-100', categoryId: 'cat11' },
+  { keywords: ['slack'], brand: 'Slack', domain: 'slack.com', color: 'bg-purple-50 border-purple-100', categoryId: 'cat14' },
+  { keywords: ['zoom', 'meeting'], brand: 'Zoom', domain: 'zoom.us', color: 'bg-blue-50 border-blue-100', categoryId: 'cat14' },
 ];
+
+export const detectBrand = (text) => {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+  return BRAND_LOGOS.find(b => b.keywords.some(k => lower.includes(k))) || null;
+};
+
+const mapTransaction = (t) => ({
+  ...t,
+  categoryId: t.categoryId || t.category || 'cat15',
+  date: t.date ? t.date.split('T')[0] : new Date().toISOString().split('T')[0],
+});
+
+const mapPlannedPayment = (p) => ({
+  ...p,
+  brand: p.title || p.brand,
+  categoryId: p.category_id || p.categoryId || 'cat15',
+  date: p.date ? p.date.split('T')[0] : new Date().toISOString().split('T')[0],
+});
 
 function loadData() {
   let data = null;
@@ -67,124 +69,221 @@ function loadData() {
   if (!data) {
     data = {
       user: null,
-      transactions: JSON.parse(JSON.stringify(DEMO_TRANSACTIONS))
+      transactions: [],
+      goals: [],
+      payments: [],
+      notifications: []
     };
   }
-
-  // Otomatik olarak 2025 yılı demo verilerini 2026'ya taşır ki grafikler boş kalmasın
-  const currentYear = new Date().getFullYear();
-  if (currentYear >= 2026 && data.transactions) {
-    let changed = false;
-    data.transactions.forEach(t => {
-      if (t.date && t.date.startsWith('2025-')) {
-        t.date = t.date.replace('2025-', '2026-');
-        changed = true;
-      }
-    });
-    if (changed) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
-    }
-  }
+  
+  if (!data.goals) data.goals = [];
+  if (!data.payments) data.payments = [];
+  if (!data.notifications) data.notifications = [];
 
   return data;
 }
 
 function saveData(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
 }
 
-const uid = () => 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+const initial = loadData();
 
-export const getCat = (id) => CATEGORIES.find(c => c.id === id) || {name:'Diğer', icon:'📦', color:'#9E9E9E'};
-
-// Utility formatter methods
-export const fmt = (amount, currency = 'TRY') => {
-  const symbols = { TRY:'₺', USD:'$', EUR:'€' };
-  return (symbols[currency] || '₺') + Number(amount).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2});
-};
-
-export const fmtDate = (d) => {
-  return new Date(d).toLocaleDateString('tr-TR', {day:'numeric', month:'short', year:'numeric'});
-};
-
-export const useStore = create((set, get) => {
-  const initial = loadData();
-  return {
+export const useStore = create((set) => ({
     user: initial.user,
-    transactions: initial.transactions,
+    transactions: [],
+    goals: initial.goals || [],
+    payments: [],
+    notifications: initial.notifications || [],
     toastMsg: null,
-    
-    showToast: (msg, type = 'info') => {
-      const id = Date.now();
-      set({ toastMsg: { msg, type, id } });
+    totalBudget: initial.totalBudget || 0,
+    budgetLimits: initial.budgetLimits || {},
+
+    showToast: (msg, type = 'success') => {
+      set({ toastMsg: { msg, type } });
+      // Auto hide after 3 seconds
       setTimeout(() => {
-        if (get().toastMsg?.id === id) {
-          set({ toastMsg: null });
-        }
+        set({ toastMsg: null });
       }, 3000);
     },
 
-    login: (email) => {
-      const user = { id:'u1', name: email === 'demo@fintech.app' ? 'Demo Kullanıcı' : email.split('@')[0], email, currency:'TRY' };
+    hideToast: () => {
+      set({ toastMsg: null });
+    },
+
+    setTransactions: (rawTransactions) => {
+      const transactions = (rawTransactions || []).map(mapTransaction);
       set((state) => {
-        saveData({ user, transactions: state.transactions });
+        saveData({ ...state, transactions });
+        return { transactions };
+      });
+    },
+
+    setPayments: (rawPayments) => {
+      const payments = (rawPayments || []).map(mapPlannedPayment);
+      set((state) => {
+        saveData({ ...state, payments });
+        return { payments };
+      });
+    },
+
+    setGoals: (goals) => {
+      set((state) => {
+        saveData({ ...state, goals });
+        return { goals };
+      });
+    },
+
+
+
+    setTotalBudget: (amount) => {
+      set((state) => {
+        saveData({ ...state, totalBudget: amount });
+        return { totalBudget: amount };
+      });
+    },
+
+    updateBudgetLimit: (catId, amount) => {
+      set((state) => {
+        const newLimits = { ...state.budgetLimits, [catId]: amount };
+        saveData({ ...state, budgetLimits: newLimits });
+        return { budgetLimits: newLimits };
+      });
+    },
+
+    addTransaction: (t) => {
+      set((state) => {
+        const newT = { ...t, id: t.id || 't_' + Date.now(), date: t.date || new Date().toISOString().split('T')[0] };
+        const transactions = [newT, ...state.transactions];
+        saveData({ ...state, transactions });
+        return { transactions };
+      });
+    },
+
+    deleteTransaction: (id) => {
+      set((state) => {
+        const transactions = state.transactions.filter(t => t.id !== id);
+        saveData({ ...state, transactions });
+        return { transactions };
+      });
+    },
+
+    addGoal: (g) => {
+      set((state) => {
+        const newG = { ...g, id: 'g_' + Date.now() };
+        const goals = [...state.goals, newG];
+        saveData({ ...state, goals });
+        return { goals };
+      });
+    },
+
+    updateGoal: (id, saved) => {
+      set((state) => {
+        const goals = state.goals.map(g => g.id === id ? { ...g, saved } : g);
+        saveData({ ...state, goals });
+        return { goals };
+      });
+    },
+
+    deleteGoal: (id) => {
+      set((state) => {
+        const goals = state.goals.filter(g => g.id !== id);
+        saveData({ ...state, goals });
+        return { goals };
+      });
+    },
+
+
+    addPayment: (p) => {
+      set((state) => {
+        const newP = { ...p, id: 'p_' + Date.now() };
+        const payments = [...state.payments, newP];
+        saveData({ ...state, payments });
+        return { payments };
+      });
+    },
+
+    deletePayment: (id) => {
+      set((state) => {
+        const payments = state.payments.filter(p => p.id !== id);
+        saveData({ ...state, payments });
+        return { payments };
+      });
+    },
+
+    markAsPaid: (paymentId, date) => {
+      set((state) => {
+        const payment = state.payments.find(p => p.id === paymentId);
+        if (!payment) return state;
+        const newT = {
+          id: 't_' + Date.now(),
+          type: 'EXPENSE',
+          amount: payment.amount,
+          description: payment.brand,
+          categoryId: payment.categoryId,
+          domain: payment.domain,
+          date: date || new Date().toISOString().split('T')[0]
+        };
+        const transactions = [newT, ...state.transactions];
+        saveData({ ...state, transactions });
+        return { transactions };
+      });
+    },
+
+    login: (userData) => {
+      set((state) => {
+        const user = { ...userData, currency: 'TRY' };
+        saveData({ user, transactions: state.transactions, goals: state.goals, payments: state.payments, totalBudget: state.totalBudget, budgetLimits: state.budgetLimits });
         return { user };
       });
     },
 
-    register: (name, email) => {
-      const user = { id: 'u_' + Date.now(), name, email, currency:'TRY' };
-      set(() => {
-        saveData({ user, transactions: [] });
-        return { user, transactions: [] };
+    register: (full_name, email, phone_number) => {
+      const user = { id: 'u_' + Date.now(), full_name, email, phone_number, currency:'TRY' };
+      set((state) => {
+        saveData({ user, transactions: [], goals: [], payments: [], totalBudget: 0, budgetLimits: {} });
+        return { user, transactions: [], goals: [], payments: [], totalBudget: 0, budgetLimits: {} };
       });
     },
 
     logout: () => {
-      set((state) => {
-        saveData({ user: null, transactions: state.transactions });
-        return { user: null };
+      // Token ve tüm kullanıcı verisini temizle
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('access_token');
+      set({
+        user: null,
+        transactions: [],
+        goals: [],
+        payments: [],
+        notifications: [],
+        totalBudget: 0,
+        budgetLimits: {},
       });
     },
 
     updateUser: (updates) => {
       set((state) => {
         const user = { ...state.user, ...updates };
-        saveData({ user, transactions: state.transactions });
+        saveData({ ...state, user });
         return { user };
       });
-    },
-
-    addTransaction: (type, amount, desc, date, categoryId) => {
-      set((state) => {
-        const newTx = {
-          id: uid(),
-          type: type.toUpperCase(),
-          amount: parseFloat(amount),
-          description: desc,
-          date,
-          categoryId: categoryId || null
-        };
-        const nextTransactions = [newTx, ...state.transactions];
-        saveData({ user: state.user, transactions: nextTransactions });
-        return { transactions: nextTransactions };
-      });
-    },
-
-    updateTransaction: (id, updates) => {
-      set((state) => {
-        const nextTransactions = state.transactions.map(t => t.id === id ? { ...t, ...updates } : t);
-        saveData({ user: state.user, transactions: nextTransactions });
-        return { transactions: nextTransactions };
-      });
-    },
-
-    deleteTransaction: (id) => {
-      set((state) => {
-        const nextTransactions = state.transactions.filter(t => t.id !== id);
-        saveData({ user: state.user, transactions: nextTransactions });
-        return { transactions: nextTransactions };
-      });
     }
-  };
-});
+}));
+
+export const fmt = (val) => {
+  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val || 0);
+};
+
+export const fmtDate = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+
+export const getCat = (id) => {
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+};
