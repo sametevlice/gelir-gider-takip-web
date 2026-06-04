@@ -3,13 +3,16 @@ name: CI/CD Deploy to AWS
 on:
   push:
     branches:
-      - main
+      - main # main branch'ine kod ulaştığında tetiklenir
 
 jobs:
+  # ----------------------------------------
+  # 1. AŞAMA: FRONTEND DAĞITIMI (S3 BUCKET)
+  # ----------------------------------------
   frontend-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Code Checkout
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -24,7 +27,7 @@ jobs:
           cd frontend-web
           npm install
 
-      - name: Build Frontend
+      - name: Build Frontend Project
         run: |
           cd frontend-web
           npm run build
@@ -36,15 +39,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Deploy to S3 Bucket
+      - name: Sync Files to S3 Bucket
         run: |
           aws s3 sync frontend-web/dist/ s3://gelir-gider-frontend-samet --delete
 
+  # ----------------------------------------
+  # 2. AŞAMA: BACKEND DAĞITIMI (EC2 SUNUCU)
+  # ----------------------------------------
   backend-deploy:
     runs-on: ubuntu-latest
-    needs: frontend-deploy
+    needs: frontend-deploy # Önce S3 yüklensin, sonra buraya geçsin
     steps:
-      - name: Checkout Code
+      - name: Code Checkout
         uses: actions/checkout@v4
 
       - name: Deploy to EC2 via SSH
