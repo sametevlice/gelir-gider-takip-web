@@ -1,0 +1,68 @@
+name: CI/CD Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main # main branch'ine kod ulaştığında tetiklenir
+
+jobs:
+  # ----------------------------------------
+  # 1. AŞAMA: FRONTEND DAĞITIMI (S3 BUCKET)
+  # ----------------------------------------
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'frontend-web/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend-web
+          npm install
+
+      - name: Build Frontend Project
+        run: |
+          cd frontend-web
+          npm run build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Sync Files to S3 Bucket
+        run: |
+          aws s3 sync frontend-web/dist/ s3://gelir-gider-frontend-samet --delete
+
+  # ----------------------------------------
+  # 2. AŞAMA: BACKEND DAĞITIMI (EC2 SUNUCU)
+  # ----------------------------------------
+  backend-deploy:
+    runs-on: ubuntu-latest
+    needs: frontend-deploy # Önce S3 yüklensin, sonra buraya geçsin
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 18.185.39.181
+          username: ubuntu
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/gelir-gider-takip-web
+            git pull origin main
+            cd backend
+            npm install --production
+            pm2 restart web-gelir-backend || pm2 start src/server.js --name "web-gelir-backend"
