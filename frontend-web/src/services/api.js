@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5005/api';
+const API_BASE_URL = 'http://18.185.39.181:5005/api';
 
 // Axios örneği oluştur
 const api = axios.create({
@@ -33,7 +33,7 @@ api.interceptors.response.use(
       console.error("401 Hatası: Oturum süresi doldu.");
       localStorage.removeItem('access_token');
       localStorage.removeItem('cashio_data'); // Opsiyonel: Store verilerini temizle
-      
+
       // Kullanıcıyı bilgilendirip sayfayı yenile veya login'e yönlendir
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
