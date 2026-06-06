@@ -85,7 +85,16 @@ function loadData() {
 
 function saveData(data) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const toSave = {
+      user: data.user,
+      transactions: data.transactions || [],
+      goals: data.goals || [],
+      payments: data.payments || [],
+      notifications: data.notifications || [],
+      totalBudget: data.totalBudget || 0,
+      budgetLimits: data.budgetLimits || {},
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   } catch {
     // ignore
   }
@@ -93,7 +102,28 @@ function saveData(data) {
 
 const initial = loadData();
 
-export const useStore = create((set) => ({
+// ── Supabase helper: profile sync ──────────────────────
+const supabaseProfileSync = async (userId, updates) => {
+  if (!userId) return;
+  try {
+    const { supabase } = await import('../supabaseClient');
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId);
+    if (error) {
+      console.error('[syncProfileData] Supabase error:', error.message);
+    } else {
+      console.log('[syncProfileData] Synced:', Object.keys(updates).join(', '));
+    }
+  } catch (err) {
+    console.error('[syncProfileData] Exception:', err.message);
+  }
+};
+
+// ── Store ────────────────────────────────────────────
+// ÖNEMLİ: (set, get) olarak iki parametre aldığından emin ol!
+export const useStore = create((set, get) => ({
     user: initial.user,
     transactions: [],
     goals: initial.goals || [],
@@ -105,7 +135,6 @@ export const useStore = create((set) => ({
 
     showToast: (msg, type = 'success') => {
       set({ toastMsg: { msg, type } });
-      // Auto hide after 3 seconds
       setTimeout(() => {
         set({ toastMsg: null });
       }, 3000);
@@ -131,30 +160,77 @@ export const useStore = create((set) => ({
       });
     },
 
+    // ── Goals ─────────────────────────────────────────
     setGoals: (goals) => {
+      const user = get().user;
       set((state) => {
         saveData({ ...state, goals });
         return { goals };
       });
+      if (user) supabaseProfileSync(user.id, { goals });
     },
 
+    addGoal: (g) => {
+      const user = get().user;
+      const newG = { ...g, id: 'g_' + Date.now() };
+      set((state) => {
+        const goals = [...state.goals, newG];
+        saveData({ ...state, goals });
+        return { goals };
+      });
+      // Sync after set so get().goals has the new value
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { goals: get().goals });
+      }, 0);
+    },
 
+    updateGoal: (id, saved) => {
+      const user = get().user;
+      set((state) => {
+        const goals = state.goals.map(g => g.id === id ? { ...g, saved } : g);
+        saveData({ ...state, goals });
+        return { goals };
+      });
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { goals: get().goals });
+      }, 0);
+    },
 
+    deleteGoal: (id) => {
+      const user = get().user;
+      set((state) => {
+        const goals = state.goals.filter(g => g.id !== id);
+        saveData({ ...state, goals });
+        return { goals };
+      });
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { goals: get().goals });
+      }, 0);
+    },
+
+    // ── Budget ────────────────────────────────────────
     setTotalBudget: (amount) => {
+      const user = get().user;
       set((state) => {
         saveData({ ...state, totalBudget: amount });
         return { totalBudget: amount };
       });
+      if (user) supabaseProfileSync(user.id, { total_budget: amount });
     },
 
     updateBudgetLimit: (catId, amount) => {
+      const user = get().user;
       set((state) => {
         const newLimits = { ...state.budgetLimits, [catId]: amount };
         saveData({ ...state, budgetLimits: newLimits });
         return { budgetLimits: newLimits };
       });
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { budget_limits: get().budgetLimits });
+      }, 0);
     },
 
+    // ── Transactions ──────────────────────────────────
     addTransaction: (t) => {
       set((state) => {
         const newT = { ...t, id: t.id || 't_' + Date.now(), date: t.date || new Date().toISOString().split('T')[0] };
@@ -172,32 +248,7 @@ export const useStore = create((set) => ({
       });
     },
 
-    addGoal: (g) => {
-      set((state) => {
-        const newG = { ...g, id: 'g_' + Date.now() };
-        const goals = [...state.goals, newG];
-        saveData({ ...state, goals });
-        return { goals };
-      });
-    },
-
-    updateGoal: (id, saved) => {
-      set((state) => {
-        const goals = state.goals.map(g => g.id === id ? { ...g, saved } : g);
-        saveData({ ...state, goals });
-        return { goals };
-      });
-    },
-
-    deleteGoal: (id) => {
-      set((state) => {
-        const goals = state.goals.filter(g => g.id !== id);
-        saveData({ ...state, goals });
-        return { goals };
-      });
-    },
-
-
+    // ── Payments ──────────────────────────────────────
     addPayment: (p) => {
       set((state) => {
         const newP = { ...p, id: 'p_' + Date.now() };
@@ -234,6 +285,7 @@ export const useStore = create((set) => ({
       });
     },
 
+    // ── Auth ──────────────────────────────────────────
     login: (userData) => {
       set((state) => {
         const user = { ...userData, currency: 'TRY' };
@@ -251,11 +303,9 @@ export const useStore = create((set) => ({
     },
 
     logout: async () => {
-      // Token ve tüm kullanıcı verisini temizle
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('access_token');
       
-      // Supabase'den de çıkış yap
       const { supabase } = await import('../supabaseClient');
       await supabase.auth.signOut();
       
@@ -280,6 +330,7 @@ export const useStore = create((set) => ({
       });
     },
 
+    // ── Realtime / Supabase Subscription ─────────────
     subscribeToChanges: async () => {
       const user = get().user;
       if (!user) return;
@@ -287,50 +338,121 @@ export const useStore = create((set) => ({
       const { supabase } = await import('../supabaseClient');
       const api = await import('../services/api');
 
-      // Önceki kanalları temizle (çift aboneliği önlemek için)
-      get().unsubscribeFromChanges();
+      // Önce mevcut kanalları temizle
+      supabase.removeAllChannels();
+      // Mevcut polling'i durdur
+      const existingInterval = get()._profilePollInterval;
+      if (existingInterval) clearInterval(existingInterval);
 
-      // Transactions tablosunu dinle
-      const txChannel = supabase
-        .channel(`web-tx-changes-${user.id}`)
+      // 1. Profile'dan anlık bütçe ve hedef verilerini çek
+      const fetchAndApplyProfile = async () => {
+        try {
+          const { data: profile, error: profileErr } = await supabase
+            .from('profiles')
+            .select('total_budget, budget_limits, goals')
+            .eq('id', user.id)
+            .single();
+          
+          if (profileErr) {
+            console.error('[Profile] Fetch error:', profileErr.message);
+          } else if (profile) {
+            set((state) => ({
+              totalBudget: profile.total_budget !== undefined ? profile.total_budget : state.totalBudget,
+              budgetLimits: profile.budget_limits || state.budgetLimits,
+              goals: profile.goals || state.goals,
+            }));
+          }
+        } catch (err) {
+          console.error('[Profile] Exception:', err.message);
+        }
+      };
+
+      // İlk yükleme
+      await fetchAndApplyProfile();
+
+      // 2. Her 5 saniyede bir profil verisini yenile (Realtime fallback)
+      const pollInterval = setInterval(fetchAndApplyProfile, 5000);
+      set({ _profilePollInterval: pollInterval });
+
+      // 3. Transactions tablosunu anlık dinle
+      supabase
+        .channel(`web-tx-${user.id}`)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` },
           async (payload) => {
-            console.log('[Realtime] İşlem değişikliği algılandı:', payload.eventType);
+            console.log('[Realtime] TX change:', payload.eventType);
             try {
               const txs = await api.getTransactions();
               get().setTransactions(txs);
             } catch (err) {
-              console.error('Realtime fetchTransactions error:', err);
+              console.error('[Realtime] TX fetch error:', err);
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('[Realtime] TX channel status:', status);
+        });
 
-      // Planned Payments tablosunu dinle
-      const paymentsChannel = supabase
-        .channel(`web-payments-changes-${user.id}`)
+      // 4. Planned Payments tablosunu anlık dinle
+      supabase
+        .channel(`web-pay-${user.id}`)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'planned_payments', filter: `user_id=eq.${user.id}` },
           async (payload) => {
-            console.log('[Realtime] Planlı ödeme değişikliği algılandı:', payload.eventType);
+            console.log('[Realtime] Payments change:', payload.eventType);
             try {
               const payments = await api.getPlannedPayments();
               get().setPayments(payments);
             } catch (err) {
-              console.error('Realtime fetchPayments error:', err);
+              console.error('[Realtime] Payments fetch error:', err);
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('[Realtime] Payments channel status:', status);
+        });
+
+      // 5. Profiles tablosunu Realtime ile dinle (Supabase Replication açıksa çalışır)
+      supabase
+        .channel(`web-profile-${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
+          (payload) => {
+            console.log('[Realtime] Profile change via Realtime:', payload.new);
+            if (payload.new) {
+              const newData = payload.new;
+              set((state) => ({
+                totalBudget: newData.total_budget !== undefined ? newData.total_budget : state.totalBudget,
+                budgetLimits: newData.budget_limits || state.budgetLimits,
+                goals: newData.goals || state.goals,
+              }));
+            }
+          }
+        )
+        .subscribe((status) => {
+          console.log('[Realtime] Profile channel status:', status);
+        });
     },
 
     unsubscribeFromChanges: async () => {
-      const { supabase } = await import('../supabaseClient');
-      supabase.removeAllChannels();
-    }
+      const interval = get()._profilePollInterval;
+      if (interval) {
+        clearInterval(interval);
+        set({ _profilePollInterval: null });
+      }
+      try {
+        const { supabase } = await import('../supabaseClient');
+        supabase.removeAllChannels();
+        console.log('[Realtime] All channels removed');
+      } catch (err) {
+        console.error('[unsubscribeFromChanges] Error:', err.message);
+      }
+    },
+
+    _profilePollInterval: null,
 }));
 
 export const fmt = (val) => {
