@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useStore } from './store/useStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import Auth from './pages/Auth';
+import EmailVerification from './pages/EmailVerification';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
@@ -22,7 +25,9 @@ function App() {
   const [activePage, setActivePage] = useState('dashboard');
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [view, setView] = useState('landing'); // 'landing', 'login', 'register'
+  const [view, setView] = useState('landing'); // 'landing', 'login', 'register', 'verify-email', 'forgot-password', 'reset-password'
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [verificationContext, setVerificationContext] = useState('register'); // 'register' or 'reset'
 
   if (!user) {
     return (
@@ -34,11 +39,57 @@ function App() {
               onRegister={() => setView('register')} 
             />
           </motion.div>
+        ) : view === 'forgot-password' ? (
+          <motion.div key="forgot-password" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <ForgotPassword 
+              onBack={() => setView('login')}
+              onSuccess={(email) => {
+                setRegisteredEmail(email);
+                setVerificationContext('reset');
+                setView('verify-email');
+              }}
+            />
+          </motion.div>
+        ) : view === 'reset-password' ? (
+          <motion.div key="reset-password" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <ResetPassword 
+              onBack={() => setView('login')}
+              onSuccess={() => {
+                // Şifre yenilendi
+                setView('login');
+              }}
+            />
+          </motion.div>
+        ) : view === 'verify-email' ? (
+          <motion.div key="verify-email" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <EmailVerification 
+              email={registeredEmail}
+              type={verificationContext === 'reset' ? 'recovery' : 'signup'}
+              onBack={() => setView('login')}
+              onVerify={(code) => {
+                // Şimdilik simüle ediyoruz, 3. adımda AWS API buraya gelecek
+                console.log('Doğrulanan kod:', code);
+                // Eğer şifre sıfırlama için doğrulanıyorsa yeni şifre ekranına geç
+                if (verificationContext === 'reset') {
+                  setView('reset-password');
+                } else {
+                  // Değilse normal login
+                  setView('login');
+                }
+              }}
+            />
+          </motion.div>
         ) : (
           <motion.div key="auth" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
             <Auth 
               initialIsLogin={view === 'login'} 
               onBack={() => setView('landing')} 
+              onRegisterSuccess={(email) => {
+                setRegisteredEmail(email);
+                setVerificationContext('register');
+                setView('verify-email');
+              }}
+              onForgotPassword={() => setView('forgot-password')}
             />
           </motion.div>
         )}

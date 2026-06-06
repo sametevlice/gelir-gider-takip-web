@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { login as apiLogin, register as apiRegister } from '../services/api';
+import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function Auth({ initialIsLogin = true, onBack }) {
+export default function Auth({ initialIsLogin = true, onBack, onRegisterSuccess, onForgotPassword }) {
   const [isLogin, setIsLogin] = useState(initialIsLogin);
   const login = useStore(state => state.login);
   const register = useStore(state => state.register);
@@ -43,11 +43,16 @@ export default function Auth({ initialIsLogin = true, onBack }) {
     }
     setIsLoading(true);
     try {
-      const res = await apiLogin({ email, password: pass });
-      login(res.user); 
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: pass,
+      });
+      if (error) throw error;
+      
+      login(data.user); 
       showToast('Giriş başarılı!', 'success');
     } catch (err) {
-      showToast(err.response?.data?.message || 'Giriş yapılamadı', 'error');
+      showToast(err.message || 'Giriş yapılamadı', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -66,18 +71,28 @@ export default function Auth({ initialIsLogin = true, onBack }) {
     }
     setIsLoading(true);
     try {
-      await apiRegister({ 
-        full_name: name, 
-        email, 
-        phone_number: phone, 
-        password: pass 
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: pass,
+        options: {
+          data: {
+            full_name: name,
+            phone_number: phone,
+          }
+        }
       });
-      showToast('Kayıt başarılı! Giriş yapabilirsiniz.', 'success');
-      setIsLogin(true);
+      if (error) throw error;
+
+      showToast('Kayıt başarılı! Lütfen e-postanızı doğrulayın.', 'success');
+      if (onRegisterSuccess) {
+        onRegisterSuccess(email);
+      } else {
+        setIsLogin(true);
+      }
       setPass('');
       setConfirmPass('');
     } catch (err) {
-      showToast(err.response?.data?.message || 'Kayıt yapılamadı', 'error');
+      showToast(err.message || 'Kayıt yapılamadı', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +195,7 @@ export default function Auth({ initialIsLogin = true, onBack }) {
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Şifre</label>
-              {isLogin && <a href="#" className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest">Şifremi Unuttum</a>}
+              {isLogin && <button type="button" onClick={onForgotPassword} className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-widest transition-colors">Şifremi Unuttum</button>}
             </div>
             <div className="relative">
               <input 
