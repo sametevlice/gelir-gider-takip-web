@@ -28,6 +28,9 @@ jobs:
           npm install
 
       - name: Build Frontend Project
+        env:
+          VITE_SUPABASE_URL: https://iymbwbrwlhwowolnyuvq.supabase.co
+          VITE_SUPABASE_ANON_KEY: sb_publishable_hDLksIYCV3D2PnWwJFtHHw_lWjJDhBP
         run: |
           cd frontend-web
           npm run build
