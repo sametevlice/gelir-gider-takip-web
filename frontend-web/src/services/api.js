@@ -11,9 +11,21 @@ const api = axios.create({
 });
 
 // İstek öncesi araya girerek (interceptor) token ekle
+import { supabase } from '../supabaseClient';
+
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
+  async (config) => {
+    // Önce localStorage'da eski usül access_token var mı bakalım
+    let token = localStorage.getItem('access_token');
+    
+    // Eğer yoksa Supabase session'dan alalım
+    if (!token) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        token = session.access_token;
+      }
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from './store/useStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import Auth from './pages/Auth';
@@ -21,7 +21,14 @@ import Toast from './components/Toast';
 
 function App() {
   const user = useStore(state => state.user);
+  const subscribeToChanges = useStore(state => state.subscribeToChanges);
   
+  useEffect(() => {
+    if (user) {
+      subscribeToChanges();
+    }
+  }, [user, subscribeToChanges]);
+
   const [activePage, setActivePage] = useState('dashboard');
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);

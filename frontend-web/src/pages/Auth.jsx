@@ -49,6 +49,11 @@ export default function Auth({ initialIsLogin = true, onBack, onRegisterSuccess,
       });
       if (error) throw error;
       
+      // Axios interceptor'un hemen kullanabilmesi için access_token kaydedelim
+      if (data.session) {
+        localStorage.setItem('access_token', data.session.access_token);
+      }
+
       login(data.user); 
       showToast('Giriş başarılı!', 'success');
     } catch (err) {

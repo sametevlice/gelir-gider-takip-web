@@ -250,10 +250,17 @@ export const useStore = create((set) => ({
       });
     },
 
-    logout: () => {
+    logout: async () => {
       // Token ve tüm kullanıcı verisini temizle
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('access_token');
+      
+      // Supabase'den de çıkış yap
+      const { supabase } = await import('../supabaseClient');
+      await supabase.auth.signOut();
+      
+      get().unsubscribeFromChanges();
+
       set({
         user: null,
         transactions: [],
@@ -271,6 +278,58 @@ export const useStore = create((set) => ({
         saveData({ ...state, user });
         return { user };
       });
+    },
+
+    subscribeToChanges: async () => {
+      const user = get().user;
+      if (!user) return;
+
+      const { supabase } = await import('../supabaseClient');
+      const api = await import('../services/api');
+
+      // Önceki kanalları temizle (çift aboneliği önlemek için)
+      get().unsubscribeFromChanges();
+
+      // Transactions tablosunu dinle
+      const txChannel = supabase
+        .channel(`web-tx-changes-${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` },
+          async (payload) => {
+            console.log('[Realtime] İşlem değişikliği algılandı:', payload.eventType);
+            try {
+              const txs = await api.getTransactions();
+              get().setTransactions(txs);
+            } catch (err) {
+              console.error('Realtime fetchTransactions error:', err);
+            }
+          }
+        )
+        .subscribe();
+
+      // Planned Payments tablosunu dinle
+      const paymentsChannel = supabase
+        .channel(`web-payments-changes-${user.id}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'planned_payments', filter: `user_id=eq.${user.id}` },
+          async (payload) => {
+            console.log('[Realtime] Planlı ödeme değişikliği algılandı:', payload.eventType);
+            try {
+              const payments = await api.getPlannedPayments();
+              get().setPayments(payments);
+            } catch (err) {
+              console.error('Realtime fetchPayments error:', err);
+            }
+          }
+        )
+        .subscribe();
+    },
+
+    unsubscribeFromChanges: async () => {
+      const { supabase } = await import('../supabaseClient');
+      supabase.removeAllChannels();
     }
 }));
 
