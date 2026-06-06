@@ -28,6 +28,9 @@ jobs:
           npm install
 
       - name: Build Frontend Project
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           cd frontend-web
           npm run build
