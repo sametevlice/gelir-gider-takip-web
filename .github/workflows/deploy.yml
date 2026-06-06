@@ -29,8 +29,8 @@ jobs:
 
       - name: Build Frontend Project
         env:
-          VITE_SUPABASE_URL: https://iymbwbrwlhwowolnyuvq.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_hDLksIYCV3D2PnWwJFtHHw_lWjJDhBP
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           cd frontend-web
           npm run build
