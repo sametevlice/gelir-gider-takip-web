@@ -458,21 +458,23 @@ export default function Dashboard({ setModalOpen, setEditId, setActivePage }) {
                         const barWidth = Math.min(100, Math.max(5, (currentAmount / (totalThisMonthExpense || 1)) * 100));
 
                         return (
-                          <div key={catId} className="flex items-center">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-gray-100 text-[20px] mr-3">
-                              {cat.icon}
-                            </div>
-                            <div className="flex-1 mr-4">
-                              <div className="flex justify-between items-end mb-1.5">
-                                <span className="text-[12px] font-extrabold text-[#11142D]">{cat.name}</span>
-                                <span className="text-[12px] font-extrabold text-[#11142D]">{fmt(currentAmount)}</span>
+                          <div key={catId} className="flex flex-col mb-4 last:mb-0">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-10 h-10 shrink-0 rounded-xl bg-white flex items-center justify-center shadow-sm border border-gray-100 text-[20px]">
+                                  {cat.icon}
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[13px] font-extrabold text-[#11142D] truncate">{cat.name}</span>
+                                  <span className="text-[11px] font-extrabold text-gray-500">{fmt(currentAmount)}</span>
+                                </div>
                               </div>
-                              <div className="w-full h-2.5 bg-[#E0E7FF] rounded-full overflow-hidden">
-                                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${barWidth}%`, backgroundColor: cat.color }}></div>
+                              <div className={`px-2 py-1 shrink-0 rounded-md text-[9px] font-black uppercase tracking-wider whitespace-nowrap shadow-sm flex items-center gap-1 ml-2 ${badgeColor}`}>
+                                <span className="text-[12px] leading-none">{arrow}</span> GEÇEN AY: {displayPercent}
                               </div>
                             </div>
-                            <div className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold tracking-widest uppercase whitespace-nowrap shadow-sm flex items-center gap-1 ${badgeColor}`}>
-                              <span className="text-[12px] leading-none">{arrow}</span> Önceki Aya Göre: {displayPercent}
+                            <div className="w-full h-2.5 bg-[#E0E7FF] rounded-full overflow-hidden">
+                              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${barWidth}%`, backgroundColor: cat.color }}></div>
                             </div>
                           </div>
                         );
