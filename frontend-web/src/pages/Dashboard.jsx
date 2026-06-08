@@ -220,28 +220,18 @@ export default function Dashboard({ setModalOpen, setEditId, setActivePage }) {
   }, {});
 
   let aiMessage = isLoadingAi ? "AI analiz ediyor..." : aiData.note;
-  let scoreColor = "#05CD99";
-  let scoreBg = "bg-emerald-50 text-emerald-600 border-emerald-100";
-  let scoreText = "Harika";
-
-  if (healthScore < 40) {
-    scoreColor = "#E02424";
-    scoreBg = "bg-red-50 text-red-600 border-red-100";
-    scoreText = "Kritik";
-  } else if (healthScore < 70) {
-    scoreColor = "#F97316";
-    scoreBg = "bg-orange-50 text-orange-600 border-orange-100";
-    scoreText = "Uyarı";
-  } else if (healthScore < 85) {
-    scoreColor = "#3B82F6";
-    scoreBg = "bg-blue-50 text-blue-600 border-blue-100";
-    scoreText = "İyi";
-  }
-
   const expensesByCategory = thisMonthTransactions.filter(t => t.type === 'EXPENSE').reduce((acc, t) => {
     acc[t.categoryId] = (acc[t.categoryId] || 0) + t.amount;
     return acc;
   }, {});
+
+  const lastMonthExpensesByCategory = lastMonth.filter(t => t.type === 'EXPENSE').reduce((acc, t) => {
+    acc[t.categoryId] = (acc[t.categoryId] || 0) + t.amount;
+    return acc;
+  }, {});
+
+  const sortedCategories = Object.keys(expensesByCategory).sort((a,b) => expensesByCategory[b] - expensesByCategory[a]).slice(0, 3);
+  const totalThisMonthExpense = Object.values(expensesByCategory).reduce((sum, val) => sum + val, 0);
   
   let topCategoryName = 'Diğer';
   let topCategoryRatio = 0;
@@ -443,18 +433,65 @@ export default function Dashboard({ setModalOpen, setEditId, setActivePage }) {
                   <RefreshCw size={14} className={isLoadingAi ? "animate-spin" : ""} />
                 </button>
               </div>
-              <div className="flex flex-col items-center justify-center mt-6 relative cursor-pointer active:scale-95 transition-transform" onClick={() => setShowAiModal(true)}>
-                <div className="relative w-40 h-20">
-                  <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F4F7FE" strokeWidth="10" strokeLinecap="round" />
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke={scoreColor} strokeWidth="10" strokeLinecap="round" strokeDasharray="125.6" strokeDashoffset={125.6 * (1 - Math.max(0, healthScore) / 100)} className="transition-all duration-1000" />
-                  </svg>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                    <span className="text-[28px] font-extrabold text-[#11142D] tracking-tighter leading-none">{healthScore}</span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Skor</span>
+              <div className="mt-4">
+                {/* Yapay Zeka Notu */}
+                {aiMessage && (
+                  <div className="bg-[#F4F7FE] p-4 rounded-2xl border border-[#E0E7FF] flex items-center gap-4 mb-6 cursor-pointer hover:bg-[#EEF2FF] transition-colors" onClick={() => setShowAiModal(true)}>
+                    <div className="text-2xl">✨</div>
+                    <div className="flex-1">
+                      <h4 className="text-[12px] font-extrabold text-indigo-600 uppercase tracking-widest mb-1">Yapay Zeka Analizi</h4>
+                      <p className="text-[12px] font-semibold text-gray-700 leading-snug line-clamp-2">{aiMessage}</p>
+                    </div>
+                    <div className="text-gray-400">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6"/></svg>
+                    </div>
                   </div>
-                </div>
-                <div className={`mt-4 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-widest uppercase border shadow-sm ${scoreBg}`}>{scoreText}</div>
+                )}
+
+                {/* Harcama Karşılaştırması */}
+                {sortedCategories.length > 0 && (
+                  <div className="bg-[#F0F9FF] p-5 rounded-2xl border border-[#E0F2FE]">
+                    <h4 className="text-[14px] font-extrabold text-[#11142D] mb-5">Harcama Karşılaştırması</h4>
+                    <div className="space-y-4">
+                      {sortedCategories.map(catId => {
+                        const cat = getCat(catId);
+                        const currentAmount = expensesByCategory[catId] || 0;
+                        const prevAmount = lastMonthExpensesByCategory[catId] || 0;
+                        let percentageChange = 0;
+                        if (prevAmount > 0) {
+                          percentageChange = Math.round(((currentAmount - prevAmount) / prevAmount) * 100);
+                        } else if (currentAmount > 0) {
+                          percentageChange = 100;
+                        }
+                        const isDown = percentageChange <= 0;
+                        const badgeColor = isDown ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100';
+                        const arrow = isDown ? '↘' : '↗';
+                        const displayPercent = isDown ? `${percentageChange}%` : `+${percentageChange}%`;
+                        const barWidth = Math.min(100, Math.max(5, (currentAmount / (totalThisMonthExpense || 1)) * 100));
+
+                        return (
+                          <div key={catId} className="flex items-center">
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-gray-100 text-[20px] mr-3">
+                              {cat.icon}
+                            </div>
+                            <div className="flex-1 mr-4">
+                              <div className="flex justify-between items-end mb-1.5">
+                                <span className="text-[12px] font-extrabold text-[#11142D]">{cat.name}</span>
+                                <span className="text-[12px] font-extrabold text-[#11142D]">{fmt(currentAmount)}</span>
+                              </div>
+                              <div className="w-full h-2.5 bg-[#E0E7FF] rounded-full overflow-hidden">
+                                <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${barWidth}%`, backgroundColor: cat.color }}></div>
+                              </div>
+                            </div>
+                            <div className={`px-2.5 py-1 rounded-full text-[9px] font-extrabold tracking-widest uppercase whitespace-nowrap shadow-sm flex items-center gap-1 ${badgeColor}`}>
+                              <span className="text-[12px] leading-none">{arrow}</span> Önceki Aya Göre: {displayPercent}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex flex-col gap-3 z-10 relative">
                 <div className="flex gap-2 flex-wrap">

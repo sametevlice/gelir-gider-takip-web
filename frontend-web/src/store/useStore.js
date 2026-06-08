@@ -184,10 +184,10 @@ export const useStore = create((set, get) => ({
       }, 0);
     },
 
-    updateGoal: (id, saved) => {
+    updateGoal: (id, updates) => {
       const user = get().user;
       set((state) => {
-        const goals = state.goals.map(g => g.id === id ? { ...g, saved } : g);
+        const goals = state.goals.map(g => g.id === id ? { ...g, ...updates } : g);
         saveData({ ...state, goals });
         return { goals };
       });
@@ -207,6 +207,41 @@ export const useStore = create((set, get) => ({
         if (user) supabaseProfileSync(user.id, { goals: get().goals });
       }, 0);
     },
+
+    addToGoal: (id, amount) => {
+      const user = get().user;
+      set((state) => {
+        const goals = state.goals.map(g => g.id === id ? { ...g, saved: g.saved + amount } : g);
+        saveData({ ...state, goals });
+        return { goals };
+      });
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { goals: get().goals });
+      }, 0);
+    },
+
+    transferBetweenGoals: (fromId, toId, amount) => {
+      const user = get().user;
+      const fromGoal = get().goals.find(g => g.id === fromId);
+      if (fromGoal && amount > fromGoal.saved) {
+        const showToast = get().showToast;
+        if (showToast) showToast(`Yetersiz bakiye! Mevcut: ${fromGoal.saved.toLocaleString('tr-TR')} ₺`, 'error');
+        return;
+      }
+      set((state) => {
+        const goals = state.goals.map(g => {
+          if (g.id === fromId) return { ...g, saved: Math.max(0, g.saved - amount) };
+          if (g.id === toId) return { ...g, saved: g.saved + amount };
+          return g;
+        });
+        saveData({ ...state, goals });
+        return { goals };
+      });
+      setTimeout(() => {
+        if (user) supabaseProfileSync(user.id, { goals: get().goals });
+      }, 0);
+    },
+
 
     // ── Budget ────────────────────────────────────────
     setTotalBudget: (amount) => {
@@ -351,7 +386,7 @@ export const useStore = create((set, get) => ({
             .from('profiles')
             .select('total_budget, budget_limits, goals')
             .eq('id', user.id)
-            .single();
+            .maybeSingle();
           
           if (profileErr) {
             console.error('[Profile] Fetch error:', profileErr.message);
@@ -370,8 +405,29 @@ export const useStore = create((set, get) => ({
       // İlk yükleme
       await fetchAndApplyProfile();
 
-      // 2. Her 5 saniyede bir profil verisini yenile (Realtime fallback)
-      const pollInterval = setInterval(fetchAndApplyProfile, 5000);
+      const pollAllData = async () => {
+        await fetchAndApplyProfile();
+        try {
+          const api = await import('../services/api');
+          
+          const rawTxs = await api.getTransactions();
+          const mappedTxs = rawTxs.map(mapTransaction);
+          if (JSON.stringify(get().transactions) !== JSON.stringify(mappedTxs)) {
+            get().setTransactions(rawTxs);
+          }
+          
+          const rawPayments = await api.getPlannedPayments();
+          const mappedPayments = rawPayments.map(mapPlannedPayment);
+          if (JSON.stringify(get().payments) !== JSON.stringify(mappedPayments)) {
+            get().setPayments(rawPayments);
+          }
+        } catch (err) {
+          // sessizce geç
+        }
+      };
+
+      // 2. Her 5 saniyede bir profil, işlem ve ödeme verisini yenile (Realtime fallback)
+      const pollInterval = setInterval(pollAllData, 5000);
       set({ _profilePollInterval: pollInterval });
 
       // 3. Transactions tablosunu anlık dinle
@@ -429,6 +485,33 @@ export const useStore = create((set, get) => ({
                 budgetLimits: newData.budget_limits || state.budgetLimits,
                 goals: newData.goals || state.goals,
               }));
+              
+              // Profiles güncellendiğinde diğer verileri de anında çek (Ping mekanizması)
+              (async () => {
+                try {
+                  const api = await import('../services/api');
+                  const rawTxs = await api.getTransactions();
+                  const mappedTxs = rawTxs.map(t => ({
+                    ...t,
+                    categoryId: t.categoryId || t.category || 'cat15',
+                    date: t.date ? t.date.split('T')[0] : new Date().toISOString().split('T')[0],
+                  }));
+                  if (JSON.stringify(get().transactions) !== JSON.stringify(mappedTxs)) {
+                    get().setTransactions(rawTxs);
+                  }
+                  
+                  const rawPayments = await api.getPlannedPayments();
+                  const mappedPayments = rawPayments.map(p => ({
+                    ...p,
+                    brand: p.title || p.brand,
+                    categoryId: p.category_id || p.categoryId || 'cat15',
+                    date: p.date ? p.date.split('T')[0] : new Date().toISOString().split('T')[0],
+                  }));
+                  if (JSON.stringify(get().payments) !== JSON.stringify(mappedPayments)) {
+                    get().setPayments(rawPayments);
+                  }
+                } catch (err) { }
+              })();
             }
           }
         )

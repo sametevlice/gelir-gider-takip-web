@@ -55,6 +55,9 @@ const addTransaction = async (req, res) => {
       transaction: data[0]
     });
 
+    // Ping profiles to trigger realtime sync
+    await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
+
     // Trigger AI async
     triggerAiBackground(userId);
 
@@ -149,6 +152,9 @@ const updateTransaction = async (req, res) => {
       transaction: data[0]
     });
 
+    // Ping profiles to trigger realtime sync
+    await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
+
     triggerAiBackground(userId);
 
   } catch (error) {
@@ -172,6 +178,9 @@ const deleteTransaction = async (req, res) => {
     }
 
     res.json({ message: 'İşlem başarıyla silindi.' });
+
+    // Ping profiles to trigger realtime sync
+    await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
 
     triggerAiBackground(userId);
 

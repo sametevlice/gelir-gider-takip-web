@@ -49,6 +49,9 @@ const addPlannedPayment = async (req, res) => {
       return res.status(400).json({ message: 'Ödeme planı kaydedilemedi.', error: error.message });
     }
 
+    // Ping profiles to trigger realtime sync
+    await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
+
     res.status(201).json({
       message: 'Ödeme planı başarıyla kaydedildi.',
       plannedPayment: data[0]
@@ -72,6 +75,9 @@ const deletePlannedPayment = async (req, res) => {
     if (error) {
       return res.status(400).json({ message: 'Ödeme planı silinemedi.', error: error.message });
     }
+
+    // Ping profiles to trigger realtime sync
+    await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
 
     res.json({ message: 'Ödeme planı başarıyla silindi.' });
   } catch (error) {

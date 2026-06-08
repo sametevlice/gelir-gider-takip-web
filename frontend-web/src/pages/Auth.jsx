@@ -54,7 +54,20 @@ export default function Auth({ initialIsLogin = true, onBack, onRegisterSuccess,
         localStorage.setItem('access_token', data.session.access_token);
       }
 
-      login(data.user); 
+      // Profil bilgilerini çek ve kullanıcı nesnesine ekle
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, phone_number')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      const userWithProfile = {
+        ...data.user,
+        full_name: profile?.full_name || data.user.user_metadata?.full_name || '',
+        phone_number: profile?.phone_number || data.user.user_metadata?.phone_number || '',
+      };
+
+      login(userWithProfile); 
       showToast('Giriş başarılı!', 'success');
     } catch (err) {
       showToast(err.message || 'Giriş yapılamadı', 'error');
@@ -87,6 +100,16 @@ export default function Auth({ initialIsLogin = true, onBack, onRegisterSuccess,
         }
       });
       if (error) throw error;
+
+      // Profil bilgilerini profiles tablosuna da kaydet
+      if (data.user) {
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          full_name: name,
+          phone_number: phone,
+          updated_at: new Date().toISOString(),
+        });
+      }
 
       showToast('Kayıt başarılı! Lütfen e-postanızı doğrulayın.', 'success');
       if (onRegisterSuccess) {
