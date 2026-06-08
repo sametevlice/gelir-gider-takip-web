@@ -434,19 +434,7 @@ export default function Dashboard({ setModalOpen, setEditId, setActivePage }) {
                 </button>
               </div>
               <div className="mt-4">
-                {/* Yapay Zeka Notu */}
-                {aiMessage && (
-                  <div className="bg-[#F4F7FE] p-4 rounded-2xl border border-[#E0E7FF] flex items-center gap-4 mb-6 cursor-pointer hover:bg-[#EEF2FF] transition-colors" onClick={() => setShowAiModal(true)}>
-                    <div className="text-2xl">✨</div>
-                    <div className="flex-1">
-                      <h4 className="text-[12px] font-extrabold text-indigo-600 uppercase tracking-widest mb-1">Yapay Zeka Analizi</h4>
-                      <p className="text-[12px] font-semibold text-gray-700 leading-snug line-clamp-2">{aiMessage}</p>
-                    </div>
-                    <div className="text-gray-400">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M9 18l6-6-6-6"/></svg>
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Harcama Karşılaştırması */}
                 {sortedCategories.length > 0 && (
