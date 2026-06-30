@@ -95,10 +95,19 @@ Projeyi bilgisayarınızda çalıştırmak için aşağıdaki adımları sıras�
 
 ---
 
-## ☁️ Bulut Mimarisi ve AWS Deploy Süreci
+## ☁️ Bulut Mimarisi ve CI/CD Süreç Yönetimi
 
-Projemiz, yüksek erişilebilirlik, güvenlik ve 7/24 kesintisiz hizmet için **Amazon Web Services (AWS)** bulut altyapısı üzerinde canlıya alınmıştır. 
+Projemiz, modern yazılım geliştirme standartlarına uygun olarak **ayrık mimari (decoupled architecture)** modeliyle AWS (Amazon Web Services) üzerinde canlıya alınmış ve uçtan uca otomatik bir **CI/CD (Sürekli Entegrasyon ve Dağıtım)** hattına bağlanmıştır.
 
-- **AWS EC2 (Elastic Compute Cloud):** Uygulamamızın ana sunucu mimarisi güçlü AWS EC2 instance'ları üzerinde koşmaktadır. Bu sayede uygulamanın trafik durumuna göre performans kaybı yaşamadan ölçeklenebilmesi (scalability) sağlanmıştır.
-- **Yüksek Güvenlik Standartları:** Sunucu erişimleri ve yönetimi, izole edilmiş ağ yapılandırmaları ve özel `.pem` anahtarları ile sadece yetkili SSH bağlantılarına izin verecek şekilde konfigüre edilmiştir. 
-- **Canlı Ortam (Production) Optimizasyonu:** Sunucu üzerinde gelen istekleri en hızlı şekilde yönlendirmek için **Nginx** reverse-proxy olarak konumlandırılmış, uygulamanın çökme durumlarında anında yeniden başlatılmasını sağlamak için **PM2** süreç yöneticisi entegre edilmiştir.
+### 🔄 GitHub Actions ile Tam Otomatik Pipeline
+Geliştirme sürecinin hızlanması ve insan hatasının sıfıra inmesi için `.github/workflows/deploy.yml` üzerinden özel bir otomasyon tasarlanmıştır. Kod `main` dalına (branch) ulaştığı an 2 aşamalı bir dağıtım hattı başlar:
+
+1. **Frontend Dağıtımı (AWS S3 Bucket):** 
+   Arayüz projemiz GitHub runner'larında otomatik olarak derlenir (build). Ortaya çıkan optimize edilmiş statik dosyalar (dist) doğrudan **AWS S3 (Simple Storage Service)** servisindeki özel bir klasöre senkronize edilir. Bu sayede arayüz saniyeler içinde güncellenir ve kullanıcılara ışık hızında sunulur.
+   
+2. **Backend Dağıtımı (AWS EC2 & PM2):** 
+   Frontend başarıyla yüklendikten sonra otomasyon, güvenli bir SSH tüneli kurarak ana sunucumuz olan **AWS EC2 (Elastic Compute Cloud)** instance'ına bağlanır. En güncel arka uç kodlarını çeker (git pull), paketleri günceller ve API sunucusunu **PM2** ile sıfır kesintiyle (zero downtime) yeniden başlatır.
+
+### 🔒 Uçtan Uca Güvenlik (DevSecOps Yaklaşımı)
+- Veritabanı anahtarları (Supabase), yapay zeka token'ları (Gemini) ve sunucu SSH (`.pem`) kimlikleri kod içerisinde asla barındırılmaz.
+- Bütün hassas ortam değişkenleri **GitHub Secrets** kasasında yüksek şifrelemeyle saklanır ve sadece dağıtım (deploy) anında enjekte edilir.
