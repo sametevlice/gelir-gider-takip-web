@@ -1,28 +1,5 @@
 const supabase = require('../../config/supabaseClient');
 
-const triggerAiBackground = async (userId) => {
-  try {
-    const { data: txs } = await supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false });
-    if (txs) {
-      const now = new Date();
-      const thisMonthTxs = txs.filter(t => {
-        const d = new Date(t.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      });
-      const aiService = require('../services/aiService');
-      const aiResult = await aiService.getFinancialAdvice(thisMonthTxs);
-      if (aiResult && aiResult.score !== undefined) {
-        await supabase.from('profiles').update({
-          last_ai_analysis: aiResult.note,
-          last_ai_score: aiResult.score
-        }).eq('id', userId);
-      }
-    }
-  } catch (err) {
-    console.error('Background AI trigger error:', err);
-  }
-};
-
 const addTransaction = async (req, res) => {
   try {
     const { amount, category, description, type, date } = req.body;
@@ -57,9 +34,6 @@ const addTransaction = async (req, res) => {
 
     // Ping profiles to trigger realtime sync
     await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
-
-    // Trigger AI async
-    triggerAiBackground(userId);
 
   } catch (error) {
     res.status(500).json({ message: 'Sunucu hatası.', error: error.message });
@@ -155,8 +129,6 @@ const updateTransaction = async (req, res) => {
     // Ping profiles to trigger realtime sync
     await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
 
-    triggerAiBackground(userId);
-
   } catch (error) {
     res.status(500).json({ message: 'Sunucu hatası.', error: error.message });
   }
@@ -181,8 +153,6 @@ const deleteTransaction = async (req, res) => {
 
     // Ping profiles to trigger realtime sync
     await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', userId);
-
-    triggerAiBackground(userId);
 
   } catch (error) {
     res.status(500).json({ message: 'Sunucu hatası.', error: error.message });

@@ -11,8 +11,8 @@ const getFinancialAdvice = async (transactions) => {
       generationConfig: { temperature: 0.0 } 
     });
     
-    // Harcamaları formatlıyoruz
-    const formattedTransactions = transactions.map(t => {
+    // Harcamaları formatlıyoruz (En fazla son 20 işlem)
+    const formattedTransactions = transactions.slice(0, 20).map(t => {
       const cat = t.category || t.categoryId || 'Diğer';
       const desc = t.description || t.brand || '';
       return `${t.date || ''} - ${cat}: ${t.type === 'INCOME' ? '+' : '-'}${t.amount} TL (${desc})`;
@@ -56,8 +56,8 @@ const askFinancialAssistant = async (transactions, question) => {
       generationConfig: { temperature: 0.3 } 
     });
     
-    // Harcamaları formatlıyoruz
-    const formattedTransactions = transactions.map(t => {
+    // Harcamaları formatlıyoruz (En fazla son 20 işlem)
+    const formattedTransactions = transactions.slice(0, 20).map(t => {
       const cat = t.category || t.categoryId || 'Diğer';
       const desc = t.description || t.brand || '';
       return `${t.date || ''} - ${cat}: ${t.type === 'INCOME' ? '+' : '-'}${t.amount} TL (${desc})`;
