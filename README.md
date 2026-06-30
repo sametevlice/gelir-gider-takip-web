@@ -2,7 +2,7 @@
 
 Modern tasarımı, yapay zeka destekli asistanı ve güçlü veritabanı altyapısıyla finansal hayatınızı tek bir yerden kontrol etmenizi sağlayan, uçtan uca akıllı bir gelir-gider takip ve bütçe planlama platformu.
 
-![Landing Page](./screenshots/5.png)
+![Landing Page](./screenshots/landing.png)
 
 ## ✨ Projenin Güçlü Yönleri ve Mimari
 
@@ -12,41 +12,46 @@ Uygulamamız, Google'ın en yeni ve performanslı dil modeli **Gemini 1.5 Flash*
 - **Dinamik Bütçe Analiz Skoru:** Finansal sağlığınızı gerçek zamanlı olarak değerlendirir.
 - **İnteraktif Soru-Cevap:** "Nasıl tasarruf edebilirim?", "En kritik harcamam ne?" gibi sorularınıza anında, veriye dayalı asistan yanıtları üretir.
 
-![Dashboard ve AI Asistan](./screenshots/4.png)
+![Dashboard ve AI Asistan](./screenshots/dashboard.png)
 
 ### 📊 Detaylı Finansal Analiz ve Görsel Raporlama
 Kullanıcıların finansal durumlarını en iyi şekilde analiz edebilmesi için gelişmiş grafik kütüphaneleri kullanılmıştır.
 - **Gelir & Gider Akışı:** Belirli periyotlardaki nakit akışını interaktif bar grafiklerle karşılaştırmalı olarak sunar.
 - **Kategori Dağılımı:** Harcamalarınızı (Ev & Yaşam, Abonelikler, Faturalar vb.) otomatik kategorize ederek dairesel grafiklerle (Pie Chart) oransal olarak gösterir.
 
-![Finansal Analiz ve Grafikler](./screenshots/9.png)
+![Finansal Analiz ve Grafikler](./screenshots/analiz.png)
 
 ### ⚡ Hızlı ve Pratik İşlem Ekleme Modülü
 Kullanıcı deneyimi (UX) odaklı tasarlanan kayıt modülü sayesinde finansal hareketleri sisteme işlemek saniyeler sürer.
 - Gelir ve Gider için optimize edilmiş, animasyonlu modal (popup) pencereleri.
 - Kategori, tutar ve tarih seçimlerinin pratik bir arayüzle sunulması.
 
-![Yeni Gider Ekleme](./screenshots/6.png)
-![Yeni Gelir Ekleme](./screenshots/7.png)
+![Yeni Gider Ekleme](./screenshots/yeni-gider.png)
+![Yeni Gelir Ekleme](./screenshots/yeni-gelir.png)
 
 ### 🗄️ Merkezi Supabase (PostgreSQL) Veritabanı Yapısı
 Projenin veri mimarisi, modern ve ölçeklenebilir bir Backend-as-a-Service olan **Supabase** üzerine inşa edilmiştir.
 - **Güçlü ve İlişkisel Altyapı:** PostgreSQL'in tüm gücüyle veri bütünlüğü sağlayan sağlam veritabanı şeması.
 - **Gerçek Zamanlı (Real-time) Senkronizasyon:** Gelir/gider kayıtlarındaki değişikliklerin anında tüm grafiklere ve arayüze yansıması.
 
-![Bütçe ve Hedefler](./screenshots/2.png)
+![Bütçe ve Hedefler](./screenshots/butce.png)
+
+### 📝 Kapsamlı İşlem Geçmişi
+Tüm finansal hareketlerinizi detaylı olarak inceleyip yönetebileceğiniz işlem tablosu. Gelir/gider filtrelemesi ve akıllı arama özellikleriyle aradığınız işlemi anında bulabilirsiniz.
+
+![İşlem Geçmişi](./screenshots/gecmis.png)
 
 ### 📅 Gelişmiş Ödeme Takvimi ve Abonelik Yönetimi
 Kullanıcıların nakit akışını en iyi şekilde yönetebilmesi için geliştirilen interaktif takvim modülü:
 - Gelecek aylardaki ödemelerinizi takvim üzerinde görselleştirerek nakit darboğazlarını önceden tespit etmenizi sağlar.
 - Netflix, Apple, Disney+ vb. tekrar eden aboneliklerin yıllık bazda maliyet analizini çıkarır ve tasarruf ipuçları sunar.
 
-![Ödeme Takvimi](./screenshots/1.png)
+![Ödeme Takvimi](./screenshots/takvim.png)
 
 ### ⚙️ Kişiselleştirilmiş Hesap Yönetimi
 Kullanıcıların platform deneyimini özelleştirebileceği modern ayarlar sayfası. Profil, iletişim bilgileri, para birimi tercihleri ve bildirim izinlerinin tek bir merkezden yönetimi sağlanır.
 
-![Hesap Ayarları](./screenshots/8.png)
+![Hesap Ayarları](./screenshots/ayarlar.png)
 
 ---
 
