@@ -92,3 +92,13 @@ Projeyi bilgisayarınızda çalıştırmak için aşağıdaki adımları sıras�
    npm run dev
    ```
    *Uygulama başarıyla başlatıldığında `http://localhost:3000` adresinden projeyi görüntüleyebilirsiniz.*
+
+---
+
+## ☁️ Bulut Mimarisi ve AWS Deploy Süreci
+
+Projemiz, yüksek erişilebilirlik, güvenlik ve 7/24 kesintisiz hizmet için **Amazon Web Services (AWS)** bulut altyapısı üzerinde canlıya alınmıştır. 
+
+- **AWS EC2 (Elastic Compute Cloud):** Uygulamamızın ana sunucu mimarisi güçlü AWS EC2 instance'ları üzerinde koşmaktadır. Bu sayede uygulamanın trafik durumuna göre performans kaybı yaşamadan ölçeklenebilmesi (scalability) sağlanmıştır.
+- **Yüksek Güvenlik Standartları:** Sunucu erişimleri ve yönetimi, izole edilmiş ağ yapılandırmaları ve özel `.pem` anahtarları ile sadece yetkili SSH bağlantılarına izin verecek şekilde konfigüre edilmiştir. 
+- **Canlı Ortam (Production) Optimizasyonu:** Sunucu üzerinde gelen istekleri en hızlı şekilde yönlendirmek için **Nginx** reverse-proxy olarak konumlandırılmış, uygulamanın çökme durumlarında anında yeniden başlatılmasını sağlamak için **PM2** süreç yöneticisi entegre edilmiştir.
