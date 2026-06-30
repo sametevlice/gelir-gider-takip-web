@@ -39,3 +39,5 @@ lerna-debug.log*
 # OS files
 Thumbs.db
 db.json
+*.pem
+proje-anahtar.pem
